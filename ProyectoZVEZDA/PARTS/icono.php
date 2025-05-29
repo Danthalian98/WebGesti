@@ -1,0 +1,51 @@
+<div class="floating-icon" data-toggle="modal" data-target="#menuIcono">
+    <img src="IMG/ico_accesibilidad.png" alt="Icono de Menú" width="50" height="50" class="rounded-circle">
+</div>
+
+  <!-- The Modal -->
+<div class="modal" id="menuIcono">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Funciones de accesibilidad</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+            <div class="container p-3 my-3 border d-flex align-items-center">
+                <div class="btn-group align-items-center">
+                  <p class="mr-3">Cambiar el tamaño del Cursor</p>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="actualizarEstilo(1)">Pequeño</button>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="actualizarEstilo(2)">Grande</button>
+                </div>
+            </div>
+
+            <div class="container p-3 my-3 border d-flex align-items-center">
+              <div class="btn-group align-items-center">
+                <p class="mr-3">Cambiar el tamaño del texto</p>
+                <button type="button" class="btn btn-primary btn-sm" onclick="cambiarTamanoTexto('texto-pequeno', 1)">Pequeño</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="cambiarTamanoTexto('texto-mediano', 2)">Mediano</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="cambiarTamanoTexto('texto-grande', 3)">Grande</button>
+              </div>
+            </div>
+            <div class="container p-3 my-3 border d-flex align-items-center">
+              <div class="btn-group align-items-center">
+                <p class="mr-3">Cambiar a tipografía</p>
+                <button type="button" class="btn btn-primary btn-sm" onclick="actualizarEstilo(3)">Default</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="actualizarEstilo(4)">Dislexia</button>
+              </div>
+            </div>
+
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+        
+        </div>
+    </div>
+</div>
