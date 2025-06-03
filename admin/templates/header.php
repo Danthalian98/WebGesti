@@ -1,11 +1,19 @@
 <?php 
   session_start();
   
-  $url_base="http://localhost/ProyectoWEB1/admin";
-  $url_imagen="http://localhost/ProyectoWEB1/assets/img/Ceti.webp";
+  $url_base="http://localhost/ProyectoWEB1/ProyectoZVEZDA/admin";
+  $url_imagen="http://localhost/ProyectoWEB1/ProyectoZVEZDA/IMG/Ceti.webp";
+  $url_tope="http://localhost/ProyectoWEB1/ProyectoZVEZDA/index.php";
 
-  if(!isset($_SESSION['usuario'])){
-    header("Location:".$url_base."/login.php");
+  
+    $nombreUsuario = $_SESSION['user_nick'];
+    $vistaNav=1;
+  
+
+  if (isset($_POST['logout'])) {
+    session_destroy();
+    header("Location:".$url_tope);
+    exit();
   }
 
 ?><!--Si quieres cambiar de servidor se tiene que cambiar el link-->
@@ -28,58 +36,42 @@
 
 <body>
   <header>
-    <!-- <nav class="navbar navbar-expand navbar-light bg-light">
-        <div class="nav navbar-nav">
-            <a class="nav-item nav-link active" href="#" aria-current="page">Administrador <span class="visually-hidden">(current)</span></a>
-            <a class="nav-item nav-link" href="<?php echo $url_base;?>/secciones/servicios/">Servicios</a>
-            <a class="nav-item nav-link" href="<?php echo $url_base;?>/secciones/portafolio/">Portafolio</a>
-            <a class="nav-item nav-link" href="<?php echo $url_base;?>/secciones/entradas/">Entradas</a>
-            <a class="nav-item nav-link" href="<?php echo $url_base;?>/secciones/equipo/">Equipo</a>
-            <a class="nav-item nav-link" href="<?php echo $url_base;?>/secciones/usuarios/">Usuarios</a>
-            <a class="nav-item nav-link" href="<?php echo $url_base;?>/cerrar.php">Cerrar sesión</a>
-        </div>
-    </nav> -->
-    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-        <!-- Brand/logo -->
-        <a class="navbar-brand" href="index.php">
-          <img src="<?php echo $url_imagen;?>" alt="logo" style="width:40px;">
-        </a>
-        <div class="collapse navbar-collapse" id="navb">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                  <div class="dropdown show">
-                    <!-- para dar el efecto de la clase nav-link es necesario agregarlo junto a las demas clases eliminando el diseño del boton inicial -->
-                    <a class="btn nav-link" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Template Principal
-                    </a>
+  <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+  <a class="navbar-brand" href="<?php echo $url_tope;?>">
+    <img src="<?php echo $url_imagen;?>" alt="logo" style="width:40px;">
+  </a>
+  <div class="collapse navbar-collapse" id="navb">
+    <ul class="navbar-nav ml-0">
+      <li class="nav-item">
+        <a class="nav-link" href="<?php echo $url_base;?>">Inicio</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="<?php echo $url_base;?>/secciones/informacion/">Información de Carreras</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="<?php echo $url_base;?>/secciones/comentarios/">Comentarios</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="<?php echo $url_base;?>/secciones/becas/">Recursos Financieros</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="<?php echo $url_base;?>/secciones/survey/">Encuestas y Formularios</a>
+      </li>
+    </ul>
 
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                      <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/servicios/">Servicios</a>
-                      <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/portafolio/">Carreras</a>
-                      <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/entradas/">Entradas</a>
-                      <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/equipo/">Equipo</a>
-                    </div>
-                  </div>
-                </li>
-                <div class="dropdown show">
-                    <!-- para dar el efecto de la clase nav-link es necesario agregarlo junto a las demas clases eliminando el diseño del boton inicial -->
-                    <a class="btn nav-link" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Template Secundario
-                  </a>
-
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/informacion/">Informacion de carreras</a>
-                    <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/survey/">Encuestas y Formularios</a>
-                    <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/becas/">Becas y apoyos</a>
-                    <a class="dropdown-item" href="<?php echo $url_base;?>/secciones/experiencias/">Experiencias</a>
-                  </div>
-                </div>
-                <li class="nav-item">
-                  <a class="nav-link" href="<?php echo $url_base;?>/cerrar.php">Cerrar Sesión</a>
-                </li>
-            </ul>
+    <?php  echo '
+      <div class="dropdown ml-auto mr-4">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            '.$nombreUsuario.'
+        </button>
+        <div class="dropdown-menu p-0 align-items-center" style="min-width: 0;">
+          <form method="post">
+              <button type="submit" name="logout" class="btn btn-primary">Cerrar&nbsp;Sesión</button>
+          </form>
         </div>
-    </nav>    
+      </div>';
+    ?>
+</nav>   
   </header>
   <main class = "container">
   <br/>
