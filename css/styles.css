@@ -23,7 +23,7 @@ html, body {
   }
 
   .cursor-pequeno { cursor: small; }
-  .cursor-grande { cursor: url("../IMG/Cursor02.png"), auto; }
+  .cursor-grande { cursor: url("./../IMG/Cursor02.png"), auto; }
 
   .texto-pequeno { font-size: small; }
   .texto-mediano { font-size: medium; }
