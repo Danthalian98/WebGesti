@@ -1,24 +1,87 @@
- <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-    <a class="navbar-brand" href="index.html">
-      <img src="IMG/Ceti.webp" alt="logo" style="width:40px;">
-    </a>
-    <div class="collapse navbar-collapse" id="navb">
-      <ul class="navbar-nav ml-0">
-        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-        <li class="nav-item"><a class="nav-link" href="infoMateria.html">Información de Carreras</a></li>
-        <li class="nav-item"><a class="nav-link" href="comentarios.html">Comentarios</a></li>
-        <li class="nav-item"><a class="nav-link" href="becas.html">Recursos Financieros</a></li>
-        <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark fixed-top">
+  <a class="navbar-brand" href="index.html">
+    <img src="IMG/Ceti.webp" alt="logo" style="width:40px;">
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navb">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navb">
+    <ul class="navbar-nav ml-0">
+      <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+      <li class="nav-item"><a class="nav-link" href="infoMateria.html">Información de Carreras</a></li>
+      <li class="nav-item"><a class="nav-link" href="comentarios.html">Comentarios</a></li>
+      <li class="nav-item"><a class="nav-link" href="becas.html">Recursos Financieros</a></li>
+      <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+    </ul>
+
+    <ul class="navbar-nav ml-auto" id="userLinks">
       </ul>
 
-      <!-- Simulación de estado de sesión con JS más adelante -->
-      <ul class="navbar-nav ml-auto" id="userLinks">
-        <!-- Rellenar con JavaScript -->
-      </ul>
+    <form class="form-inline my-2 my-lg-0 ml-2" action="busqueda.html" method="GET">
+      <input class="form-control mr-sm-2" type="text" name="buscar" placeholder="Buscar">
+      <button class="btn btn-success" type="submit">Buscar</button>
+    </form>
+  </div>
+</nav>
 
-      <form class="form-inline my-2 my-lg-0 ml-2" action="busqueda.html" method="GET">
-        <input class="form-control mr-sm-2" type="text" name="buscar" placeholder="">
-        <button class="btn btn-success" type="submit">Buscar</button>
-      </form>
-    </div>
-  </nav>
+<script>
+  // Esta función se encarga de actualizar los enlaces de autenticación en el navbar
+  function updateNavbarAuthLinks() {
+    const userLinksContainer = document.getElementById('userLinks');
+    const userId = sessionStorage.getItem('user_id'); // Intenta obtener el ID de usuario de la sesión del navegador
+    const userNick = sessionStorage.getItem('user_nick'); // Intenta obtener el nombre de usuario de la sesión del navegador
+    const userTipo = sessionStorage.getItem('user_tipo'); // Intenta obtener el tipo de usuario de la sesión del navegador
+
+    if (!userLinksContainer) { // Si el contenedor no existe por alguna razón, lanza una advertencia y termina
+      console.warn("Contenedor 'userLinks' no encontrado en el navbar.");
+      return;
+    }
+
+    // Limpia cualquier contenido que pudiera haber para empezar de cero
+    userLinksContainer.innerHTML = '';
+
+    // Lógica para mostrar enlaces según si el usuario está logueado o no
+    if (userId && userNick) { // Si hay un ID y un nombre de usuario en sessionStorage, significa que está logueado
+      // Si el usuario está logueado, muestra su nombre y el botón de cerrar sesión
+      userLinksContainer.innerHTML += `
+        <li class="nav-item"><span class="nav-link text-white">Hola, ${userNick}</span></li>
+      `;
+      // También añade el enlace al "Admin Dashboard" si el tipo de usuario no es '5' (considerando '5' como usuario normal)
+      if (userTipo && userTipo !== '5') {
+        userLinksContainer.innerHTML += `
+          <li class="nav-item"><a class="nav-link" href="admin/index.html">Admin Dashboard</a></li>
+        `;
+      }
+      userLinksContainer.innerHTML += `
+        <li class="nav-item">
+          <button class="btn btn-link nav-link" onclick="logout()">Cerrar Sesión</button>
+        </li>
+      `;
+    } else { // Si no hay ID o nombre de usuario en sessionStorage, significa que no está logueado
+      // Si el usuario no está logueado, muestra los enlaces para "Iniciar Sesión" y "Registrarse"
+      userLinksContainer.innerHTML += `
+        <li class="nav-item">
+          <a class="nav-link" href="login.html?action=login">Iniciar Sesión</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="login.html?action=register">Registrarse</a>
+        </li>
+      `;
+    }
+  }
+
+  // Esta función `logout()` borra la información de la sesión del navegador
+  // y redirige al usuario a la página principal.
+  function logout() {
+    sessionStorage.removeItem('user_id');
+    sessionStorage.removeItem('user_nick');
+    sessionStorage.removeItem('user_tipo');
+    alert('Has cerrado sesión.');
+    window.location.href = './index.html'; // Redirigir a la página principal
+  }
+
+  // NOTA IMPORTANTE: Esta función `updateNavbarAuthLinks()` debe ser llamada
+  // en CADA PÁGINA que incluya este navbar, DESPUÉS de que el navbar haya sido
+  // cargado e inyectado en el DOM. Lo mejor es hacerlo dentro de la función `cargarPartes()`
+  // de cada una de tus páginas principales (index.html, comentarios.html, etc.).
+</script>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nosotros - Orientación Vocacional CETI Colomos</title>
+
+  <link rel="stylesheet" href="./styles2.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./JS/icono.js"></script>
+  <script>
+    // Funciones de preferencias (se mantienen igual)
+    function guardarPreferencias() {
+      sessionStorage.setItem('mouse', mouse);
+      sessionStorage.setItem('dislexia', dislexia);
+      sessionStorage.setItem('numero', numero);
+    }
+
+    function cargarPreferencias() {
+      mouse = parseInt(sessionStorage.getItem('mouse')) || 1;
+      dislexia = parseInt(sessionStorage.getItem('dislexia')) || 3;
+      numero = parseInt(sessionStorage.getItem('numero')) || 2;
+    }
+
+    function aplicarCambiosEstilo(cambio) {
+      actualizarEstilo(cambio);
+      guardarPreferencias();
+    }
+
+    window.addEventListener('load', function () {
+      cargarPreferencias();
+      // VistaAnterior() se llamará después de cargar las partes dinámicas
+    });
+  </script>
+</head>
+
+<body id="body">
+  <div id="navbar-placeholder"></div>
+  <div id="conten">
+    <div class="container p-2 my-3 border text-center">
+      <h2 class="mb-3">Nuestra Misión en Orientación Vocacional CETI Colomos</h2>
+      <div class="p-1 my-3 border-0 d-flex align-items-center">
+        <img src="IMG/Logo.png" class="rounded" width="200" height="200">
+        <p class="ml-1 mb-0 contenido-texto">
+              Somos un equipo dedicado a guiar a los estudiantes del CETI Colomos en su proceso de toma de decisiones vocacionales.
+              Nuestra misión es proporcionar información clara y herramientas útiles para que cada alumno elija la carrera
+              que mejor se adapte a sus talentos y aspiraciones, fomentando un futuro profesional exitoso y satisfactorio.
+              Creemos en el potencial de cada estudiante y estamos aquí para apoyarte en cada paso.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="icono-placeholder"></div>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    async function cargarPartes() {
+  const partes = [
+    { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
+    { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
+    { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
+  ];
+
+  for (const parte of partes) {
+    try {
+      const res = await fetch(parte.archivo);
+      const html = await res.text();
+      document.getElementById(parte.id).innerHTML = html;
+    } catch (error) {
+      console.error(`Error al cargar ${parte.archivo}:`, error);
+    }
+  }
+
+  // Esperar un momento para asegurarse que todo esté cargado
+  setTimeout(() => {
+    // Llama a la función de actualización del navbar aquí
+    if (typeof updateNavbarAuthLinks === 'function') {
+      updateNavbarAuthLinks();
+    }
+    // Llama a tu función de estilos si existe
+    if (typeof VistaAnterior === 'function') {
+       VistaAnterior();
+    }
+    $('[data-toggle="tooltip"]').tooltip();
+  }, 500); // Puedes ajustar este tiempo si es necesario
+}
+
+    // Llama a la función para cargar las partes al cargar la página
+    window.onload = cargarPartes;
+  </script>
+
+</body>
+</html>

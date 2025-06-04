@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Registro - CETI Colomos</title>
+
+  <link rel="stylesheet" href="./styles2.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./JS/icono.js"></script>
+  <script>
+    // Funciones de preferencias (se mantienen igual)
+    function guardarPreferencias() {
+      sessionStorage.setItem('mouse', mouse);
+      sessionStorage.setItem('dislexia', dislexia);
+      sessionStorage.setItem('numero', numero);
+    }
+
+    function cargarPreferencias() {
+      mouse = parseInt(sessionStorage.getItem('mouse')) || 1;
+      dislexia = parseInt(sessionStorage.getItem('dislexia')) || 3;
+      numero = parseInt(sessionStorage.getItem('numero')) || 2;
+    }
+
+    function aplicarCambiosEstilo(cambio) {
+      actualizarEstilo(cambio);
+      guardarPreferencias();
+    }
+
+    window.addEventListener('load', function () {
+      cargarPreferencias();
+      // VistaAnterior() se llamará después de cargar las partes dinámicas
+    });
+  </script>
+</head>
+
+<body id="body">
+  <div id="navbar-placeholder"></div>
+
+  <div id="conten">
+    <div class="alert alert-warning alert-dismissible mb-0 d-none" id="errorMessage">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <strong id="errorText">ERROR!</strong>
+    </div>
+
+    <div id="form-container"></div>
+
+    <br>
+  </div>
+
+  <div id="icono-placeholder"></div>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    // URLs de tus APIs en Clever Cloud
+    const API_URL_LOGIN = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/login.php';
+    const API_URL_REGISTER = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/register.php';
+
+    // Función para mostrar mensajes de error
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      document.getElementById('errorText').textContent = message;
+      errorDiv.classList.remove('d-none');
+      errorDiv.classList.add('show');
+      // Opcional: ocultar después de X segundos
+      setTimeout(() => {
+        errorDiv.classList.remove('show');
+        errorDiv.classList.add('d-none');
+      }, 5000);
+    }
+
+    // Función para ocultar el mensaje de error
+    function hideError() {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.classList.remove('show');
+      errorDiv.classList.add('d-none');
+    }
+
+    // Función para manejar el envío del formulario de login
+    async function handleLoginSubmit(event) {
+      event.preventDefault(); // Evita el envío por defecto del formulario
+      hideError();
+
+      const form = event.target;
+      if (form.checkValidity() === false) {
+        form.classList.add('was-validated');
+        return;
+      }
+      form.classList.add('was-validated');
+
+      const uname = document.getElementById('unameLogin').value; // Usar ID único
+      const pwd = document.getElementById('pwdLogin').value;   // Usar ID único
+
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+
+      try {
+        const response = await fetch(API_URL_LOGIN, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ uname, pwd }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Almacenar información del usuario en sessionStorage (o localStorage)
+          // Esto simula la sesión PHP
+          sessionStorage.setItem('user_id', result.user.id);
+          sessionStorage.setItem('user_nick', result.user.nick);
+          sessionStorage.setItem('user_tipo', result.user.tipo); // Si necesitas el tipo de usuario
+
+          alert('¡Inicio de sesión exitoso!');
+          // Redirigir al usuario (ajusta la ruta según el tipo de usuario)
+          if (result.user.tipo !== 5) { // Asumiendo que 5 es usuario normal
+            window.location.href = './admin/index.html'; // O tu dashboard de admin
+          } else {
+            window.location.href = './index.html';
+          }
+        } else {
+          showError(result.error || 'Error desconocido al iniciar sesión.');
+        }
+      } catch (error) {
+        console.error('Error en el proceso de login:', error);
+        showError('Hubo un problema al intentar iniciar sesión. Intenta de nuevo.');
+      } finally {
+        submitButton.disabled = false;
+      }
+    }
+
+    // Función para manejar el envío del formulario de registro
+    async function handleRegisterSubmit(event) {
+      event.preventDefault(); // Evita el envío por defecto del formulario
+      hideError();
+
+      const form = event.target;
+      if (form.checkValidity() === false || !validateRegisterForm(form)) { // Asegúrate de llamar tus validaciones aquí
+        form.classList.add('was-validated');
+        return;
+      }
+      form.classList.add('was-validated');
+
+      const uname = document.getElementById('unameRegister').value; // Usar ID único
+      const correo = document.getElementById('correoRegister').value; // Usar ID único
+      const pwd = document.getElementById('pwdRegister').value;     // Usar ID único
+      const termsAccepted = document.getElementById('termsRegister').checked; // Usar ID único
+
+      if (!termsAccepted) {
+        showError('Debes aceptar los términos y condiciones.');
+        return;
+      }
+
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.disabled = true;
+
+      try {
+        const response = await fetch(API_URL_REGISTER, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ uname, correo, pwd }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('¡Registro exitoso! Por favor, inicia sesión.');
+          window.location.href = './login.html?action=login'; // Redirige a la página de login
+        } else {
+          showError(result.error || 'Error desconocido al registrar usuario.');
+        }
+      } catch (error) {
+        console.error('Error en el proceso de registro:', error);
+        showError('Hubo un problema al intentar registrarte. Intenta de nuevo.');
+      } finally {
+        submitButton.disabled = false;
+      }
+    }
+
+    // --- Funciones de validación para el formulario de registro ---
+    function validateRegisterForm(form) {
+        // Asegúrate de que tus IDs de campo coincidan (ej. unameRegister, correoRegister, pwdRegister)
+        const unameInput = form.querySelector('[name="uname"]');
+        const correoInput = form.querySelector('[name="correo"]');
+        const pwdInput = form.querySelector('[name="pwd"]');
+
+        let isValid = true;
+
+        // Validar nombre de usuario (8 a 30 caracteres)
+        if (unameInput && (unameInput.value.trim().length < 8 || unameInput.value.trim().length > 30)) {
+            unameInput.setCustomValidity('El usuario debe tener entre 8 y 30 caracteres.');
+            isValid = false;
+        } else if (unameInput) {
+            unameInput.setCustomValidity('');
+        }
+
+        // Validar correo electrónico
+        const correoPattern = /^([a-zA-Z0-9_.-])+@([a-zA-Z0-9])+\.([a-zA-Z0-9])+$/;
+        if (correoInput && !correoPattern.test(correoInput.value.trim())) {
+            correoInput.setCustomValidity('Por favor, ingrese un correo electrónico válido.');
+            isValid = false;
+        } else if (correoInput) {
+            correoInput.setCustomValidity('');
+        }
+
+        // Validar contraseña (puedes añadir reglas más complejas aquí)
+        if (pwdInput && pwdInput.value.trim().length === 0) {
+            pwdInput.setCustomValidity('Por favor, escriba una contraseña válida.');
+            isValid = false;
+        } else if (pwdInput) {
+            pwdInput.setCustomValidity('');
+        }
+
+        return isValid;
+    }
+
+
+    // Función para mostrar el formulario de login o registro
+    async function showForm(action) {
+      const formContainer = document.getElementById('form-container');
+      let htmlContent = '';
+
+      if (action === 'login') {
+        htmlContent = `
+          <div class="container p-2 my-3 border text-center mt-auto" style="width:450px">
+            <img src="IMG/Ceti.webp" width="100" height="100" class="rounded-circle mt-3" alt="Logo CETI">
+            <form id="loginForm" class="needs-validation mt-4" novalidate>
+              <div class="form-group contenido-texto">
+                <label for="unameLogin">Usuario:</label>
+                <input type="text" class="form-control" id="unameLogin" placeholder="" name="uname" required>
+                <div class="valid-feedback">Válido.</div>
+                <div class="invalid-feedback">Por favor, escribe un usuario válido.</div>
+              </div>
+              <div class="form-group contenido-texto">
+                <label for="pwdLogin">Contraseña:</label>
+                <input type="password" class="form-control" id="pwdLogin" placeholder="" name="pwd" required>
+                <div class="valid-feedback">Validado.</div>
+                <div class="invalid-feedback">Por favor, escribe una contraseña válida.</div>
+              </div>
+              <div class="form-group contenido-texto align-items-center">
+                <p>¿Aún no tienes una cuenta?
+                <a class="nav-link" href="login.html?action=register">Regístrate</a>
+              </div>
+              <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+          </div>
+        `;
+        formContainer.innerHTML = htmlContent;
+        document.getElementById('loginForm').addEventListener('submit', handleLoginSubmit);
+      } else if (action === 'register') {
+        htmlContent = `
+          <div class="container p-2 my-3 border text-center mt-auto" style="width:450px">
+            <img src="IMG/Ceti.webp" width="100" height="100" class="rounded-circle mt-3" alt="Logo CETI">
+            <form id="registerForm" class="needs-validation mt-4" novalidate>
+              <div class="form-group contenido-texto">
+                <label for="unameRegister">Usuario:</label>
+                <input type="text" class="form-control" id="unameRegister" placeholder="" name="uname" required>
+                <div class="valid-feedback">Validado.</div>
+                <div class="invalid-feedback">Ingrese un nombre de 8 a 30 caracteres.</div>
+              </div>
+              <div class="form-group contenido-texto">
+                <label for="correoRegister">Email:</label>
+                <input type="email" class="form-control" id="correoRegister" placeholder="" name="correo" required>
+                <div class="valid-feedback">Validado.</div>
+                <div class="invalid-feedback">Por favor, escriba un correo válido.</div>
+              </div>
+              <div class="form-group contenido-texto">
+                <label for="pwdRegister">Contraseña:</label>
+                <input type="password" class="form-control" id="pwdRegister" placeholder="" name="pwd" required>
+                <div class="valid-feedback">Validado.</div>
+                <div class="invalid-feedback">Por favor, escriba una contraseña válida.</div>
+              </div>
+              <div class="form-group form-check contenido-texto">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" name="remember" id="termsRegister" required>Acepto los <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#Terminos">Términos y condiciones</button>
+                  <div class="valid-feedback">Validado.</div>
+                  <div class="invalid-feedback">Marque esta casilla para continuar.</div>
+                </label>
+              </div>
+              <div class="form-group contenido-texto align-items-center">
+                <p>¿Ya tienes una cuenta?
+                <a class="nav-link" href="login.html?action=login">Inicia sesión</a>
+              </div>
+              <button type="submit" class="btn btn-primary">Registrarse</button>
+            </form>
+          </div>
+
+          <div class="modal" id="Terminos">
+            <div class="modal-dialog modal-dialog-scrollable">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Términos y condiciones:</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                  <p>Al utilizar esta página web para la elección de carreras, aceptas los siguientes términos y condiciones:</p>
+                  <ol>
+                    <li>La información proporcionada en la plataforma es solo para fines informativos y no garantiza la exactitud o integridad.</li>
+                    <li>El acceso y uso de la plataforma son gratuitos, pero la universidad se reserva el derecho de realizar cambios en cualquier momento.</li>
+                    <li>La universidad no se hace responsable de las decisiones tomadas con base en la información proporcionada en la plataforma.</li>
+                    <li>El usuario acepta respetar la propiedad intelectual de la universidad en relación con el contenido proporcionado.</li>
+                    <li>La universidad puede recopilar datos para mejorar la experiencia del usuario, conforme a su política de privacidad.</li>
+                  </ol>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        formContainer.innerHTML = htmlContent;
+        // Asignar evento al formulario de registro después de que se haya inyectado
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', handleRegisterSubmit);
+            // Re-aplicar validaciones personalizadas después de la inyección
+            registerForm.addEventListener('input', function() { // Escuchar cambios en los inputs para feedback dinámico
+                validateRegisterForm(this);
+            });
+        }
+      } else {
+        // Por defecto, mostrar login si no hay acción o es inválida
+        window.location.href = './login.html?action=login';
+      }
+
+      // Reiniciar la validación de Bootstrap para los formularios recién cargados
+      const currentForm = formContainer.querySelector('form');
+      if (currentForm) {
+        currentForm.classList.remove('was-validated');
+        currentForm.querySelectorAll('.form-control').forEach(input => {
+            input.setCustomValidity(''); // Limpiar mensajes de validación previos
+        });
+      }
+    }
+
+    // --- Funciones para cargar partes del HTML (navbar, footer, icono) ---
+    async function cargarPartes() {
+  const partes = [
+    { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
+    { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
+    { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
+  ];
+
+  for (const parte of partes) {
+    try {
+      const res = await fetch(parte.archivo);
+      const html = await res.text();
+      document.getElementById(parte.id).innerHTML = html;
+    } catch (error) {
+      console.error(`Error al cargar ${parte.archivo}:`, error);
+    }
+  }
+
+  // Esperar un momento para asegurarse que todo esté cargado
+  setTimeout(() => {
+    // Llama a la función de actualización del navbar aquí
+    if (typeof updateNavbarAuthLinks === 'function') {
+      updateNavbarAuthLinks();
+    }
+    // Llama a tu función de estilos si existe
+    if (typeof VistaAnterior === 'function') {
+       VistaAnterior();
+    }
+    $('[data-toggle="tooltip"]').tooltip();
+  }, 500); // Puedes ajustar este tiempo si es necesario
+}
+
+    // --- Lógica al cargar la página ---
+    window.onload = () => {
+      cargarPartes(); // Carga navbar, footer, etc.
+      // Obtener la acción de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      showForm(action || 'login'); // Muestra el formulario de login o registro según la acción
+
+      // Si hay un mensaje de error en la URL (de una redirección previa de PHP)
+      const errorMessage = urlParams.get('error');
+      if (errorMessage) {
+          showError(decodeURIComponent(errorMessage));
+      }
+    };
+
+    // Función para manejar el logout (necesitarás añadir un botón de logout en tu navbar)
+    // Se invocaría desde el navbar si el usuario está logueado
+    function logout() {
+      sessionStorage.removeItem('user_id');
+      sessionStorage.removeItem('user_nick');
+      sessionStorage.removeItem('user_tipo');
+      alert('Has cerrado sesión.');
+      window.location.href = './index.html'; // Redirige a la página principal
+    }
+  </script>
+
+</body>
+</html>
