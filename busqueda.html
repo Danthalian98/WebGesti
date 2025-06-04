@@ -39,68 +39,49 @@
 </head>
 
 <body id="body">
-  <!-- Navbar -->
   <div id="navbar-placeholder"></div>
-
-  <!-- Contenido principal -->
   <div id="conten">
-    <!-- Aquí va el contenido que cambia -->
-    <div id="contenedor-publicaciones"></div>
-    <ul class="pagination justify-content-center" id="paginacion"></ul>
-
-    <script>
-      async function cargarPublicaciones(pagina = 1) {
-        try {
-          const res = await fetch(`https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/publicaciones.php?pagina=${pagina}`);
-          const data = await res.json();
-          console.log(data);
-
-
-          const contenedor = document.getElementById("contenedor-publicaciones");
-          contenedor.innerHTML = "";
-
-          data.publicaciones.forEach(pub => {
-            contenedor.innerHTML += `
-              <div class="container p-2 my-3 border text-center">
-                <h2 class="mb-3">${pub.titulo}</h2>
-                <div class="p-1 my-3 border-0 d-flex align-items-center">
-                  <img src="IMG/${pub.idImagen}" class="rounded" width="200" height="200">
-                  <p class="ml-1 mb-0 contenido-texto">${pub.contenido}</p>
-                </div>
-              </div>
-            `;
-          });
-
-          const paginacion = document.getElementById("paginacion");
-          paginacion.innerHTML = "";
-          for (let i = 1; i <= data.totalPaginas; i++) {
-            paginacion.innerHTML += `
-              <li class="page-item ${i === data.paginaActual ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="cargarPublicaciones(${i})">${i}</a>
-              </li>
-            `;
-          }
-           if (typeof VistaAnterior === 'function') {
-              VistaAnterior();
-          }
-        } catch (e) {
-          console.error("Error al cargar publicaciones:", e);
-        }
-      }
-
-      // Llamada inicial
-      cargarPublicaciones();
-    </script>
-
-  </div>
-
-  <!-- Icono flotante -->
-  <div id="icono-placeholder"></div>
-
-  <!-- Footer -->
-  <div id="footer-placeholder"></div>
-
+    <div class="container mt-4" id="resultados"></div>
   
+    <script>
+        async function buscarPublicaciones() {
+        const params = new URLSearchParams(window.location.search);
+        const termino = params.get('buscar') || '';
+
+        if (!termino) return;
+
+        const res = await fetch(`https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/buscar.php?buscar=${encodeURIComponent(termino)}`);
+        const data = await res.json();
+
+        const contenedor = document.getElementById("resultados");
+        contenedor.innerHTML = `<h3>Resultados para: "${data.busqueda}"</h3>`;
+
+        if (data.resultados.length === 0) {
+            contenedor.innerHTML += `
+            <div class="container p-3 my-3 border d-flex align-items-center">
+                <img src="IMG/BusquedaF.png" class="rounded" width="200" height="200">
+                <p class="ml-3 mb-0 contenido-texto">No se encontraron resultados.</p>
+            </div>`;
+            return;
+        }
+
+        data.resultados.forEach(pub => {
+            contenedor.innerHTML += `
+            <div class="container p-2 my-3 border text-center">
+                <h2 class="mb-3">${pub.titulo}</h2>
+                <div class="p-0 my-3 border-0 d-flex align-items-center">
+                <img src="IMG/${pub.idImagen}" class="rounded" width="200" height="200">
+                <p class="ml-3 mb-0 contenido-texto">${pub.contenido}</p>
+                </div>
+            </div>`;
+        });
+        }
+
+        buscarPublicaciones();
+    </script>
+    </div>
+    <div id="icono-placeholder"></div>
+    <div id="footer-placeholder"></div>
 
   <script>
   async function cargarPartes() {

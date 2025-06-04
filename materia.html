@@ -44,54 +44,78 @@
 
   <!-- Contenido principal -->
   <div id="conten">
-    <!-- Aquí va el contenido que cambia -->
-    <div id="contenedor-publicaciones"></div>
-    <ul class="pagination justify-content-center" id="paginacion"></ul>
+    <div id="conten" class="container py-4">
+      <h2>Materias</h2>
+      <div id="materias-container"></div>
+    </div>
 
     <script>
-      async function cargarPublicaciones(pagina = 1) {
-        try {
-          const res = await fetch(`https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/publicaciones.php?pagina=${pagina}`);
-          const data = await res.json();
-          console.log(data);
+      function obtenerParametro(nombre) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(nombre);
+  }
 
+  // Función para cargar materias desde la API remota
+  async function cargarMaterias() {
+    const info_id = obtenerParametro('info_id') || 1; // Por defecto 1
+    const contenedor = document.getElementById('materias-container');
 
-          const contenedor = document.getElementById("contenedor-publicaciones");
-          contenedor.innerHTML = "";
+    try {
+      const respuesta = await fetch(`https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/materias.php?info_id=${info_id}`);
+      if (!respuesta.ok) throw new Error('Error en la respuesta del servidor');
 
-          data.publicaciones.forEach(pub => {
-            contenedor.innerHTML += `
-              <div class="container p-2 my-3 border text-center">
-                <h2 class="mb-3">${pub.titulo}</h2>
-                <div class="p-1 my-3 border-0 d-flex align-items-center">
-                  <img src="IMG/${pub.idImagen}" class="rounded" width="200" height="200">
-                  <p class="ml-1 mb-0 contenido-texto">${pub.contenido}</p>
-                </div>
-              </div>
-            `;
+      const materias = await respuesta.json();
+
+      if (materias.error) {
+        contenedor.innerHTML = `<div class="alert alert-danger">${materias.error}</div>`;
+        return;
+      }
+
+      if (!materias.length) {
+        contenedor.innerHTML = `<p>No se encontraron materias para este semestre.</p>`;
+        return;
+      }
+
+      // Agrupar materias por semestre
+      const semestres = {};
+      materias.forEach(materia => {
+        if (!semestres[materia.semester]) semestres[materia.semester] = [];
+        semestres[materia.semester].push(materia);
+      });
+
+      let html = '';
+
+      for (let semestre = 1; semestre <= 8; semestre++) {
+        if (semestres[semestre]) {
+          html += `<div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+              <h5>Semestre ${semestre}</h5>
+            </div>
+            <div class="card-body">`;
+
+          semestres[semestre].forEach(materia => {
+            // Asumiendo que el campo plan es el nombre del archivo PDF
+            const urlDescarga = `./assets/documents/${materia.plan}`;
+            html += `<p><a href="${urlDescarga}" target="_blank" rel="noopener noreferrer">${materia.nombre}</a></p>`;
           });
 
-          const paginacion = document.getElementById("paginacion");
-          paginacion.innerHTML = "";
-          for (let i = 1; i <= data.totalPaginas; i++) {
-            paginacion.innerHTML += `
-              <li class="page-item ${i === data.paginaActual ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="cargarPublicaciones(${i})">${i}</a>
-              </li>
-            `;
-          }
-           if (typeof VistaAnterior === 'function') {
-              VistaAnterior();
-          }
-        } catch (e) {
-          console.error("Error al cargar publicaciones:", e);
+          html += `</div></div>`;
         }
       }
 
-      // Llamada inicial
-      cargarPublicaciones();
-    </script>
+      contenedor.innerHTML = html;
 
+    } catch (error) {
+      console.error(error);
+      contenedor.innerHTML = `<div class="alert alert-danger">Error cargando materias.</div>`;
+    }
+  }
+
+  window.onload = () => {
+    cargarPartes();
+    cargarMaterias();
+  }
+  </script>
   </div>
 
   <!-- Icono flotante -->

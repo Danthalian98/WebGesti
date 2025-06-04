@@ -46,51 +46,48 @@
   <div id="conten">
     <!-- Aquí va el contenido que cambia -->
     <div id="contenedor-publicaciones"></div>
-    <ul class="pagination justify-content-center" id="paginacion"></ul>
+<ul class="pagination justify-content-center" id="paginacion"></ul>
 
-    <script>
-      async function cargarPublicaciones(pagina = 1) {
-        try {
-          const res = await fetch(`https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/publicaciones.php?pagina=${pagina}`);
-          const data = await res.json();
-          console.log(data);
+<script>
+  async function cargarPublicaciones(pagina = 1) {
+    try {
+      const res = await fetch(`https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/publicaciones.php?pagina=${pagina}`);
+      const data = await res.json();
+      console.log(data);
 
 
-          const contenedor = document.getElementById("contenedor-publicaciones");
-          contenedor.innerHTML = "";
+      const contenedor = document.getElementById("contenedor-publicaciones");
+      contenedor.innerHTML = "";
 
-          data.publicaciones.forEach(pub => {
-            contenedor.innerHTML += `
-              <div class="container p-2 my-3 border text-center">
-                <h2 class="mb-3">${pub.titulo}</h2>
-                <div class="p-1 my-3 border-0 d-flex align-items-center">
-                  <img src="IMG/${pub.idImagen}" class="rounded" width="200" height="200">
-                  <p class="ml-1 mb-0 contenido-texto">${pub.contenido}</p>
-                </div>
-              </div>
-            `;
-          });
+      data.publicaciones.forEach(pub => {
+        contenedor.innerHTML += `
+          <div class="container p-2 my-3 border text-center">
+            <h2 class="mb-3">${pub.titulo}</h2>
+            <div class="p-1 my-3 border-0 d-flex align-items-center">
+              <img src="IMG/${pub.idImagen}" class="rounded" width="200" height="200">
+              <p class="ml-1 mb-0 contenido-texto">${pub.contenido}</p>
+            </div>
+          </div>
+        `;
+      });
 
-          const paginacion = document.getElementById("paginacion");
-          paginacion.innerHTML = "";
-          for (let i = 1; i <= data.totalPaginas; i++) {
-            paginacion.innerHTML += `
-              <li class="page-item ${i === data.paginaActual ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="cargarPublicaciones(${i})">${i}</a>
-              </li>
-            `;
-          }
-           if (typeof VistaAnterior === 'function') {
-              VistaAnterior();
-          }
-        } catch (e) {
-          console.error("Error al cargar publicaciones:", e);
-        }
+      const paginacion = document.getElementById("paginacion");
+      paginacion.innerHTML = "";
+      for (let i = 1; i <= data.totalPaginas; i++) {
+        paginacion.innerHTML += `
+          <li class="page-item ${i === data.paginaActual ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="cargarPublicaciones(${i})">${i}</a>
+          </li>
+        `;
       }
+    } catch (e) {
+      console.error("Error al cargar publicaciones:", e);
+    }
+  }
 
-      // Llamada inicial
-      cargarPublicaciones();
-    </script>
+  // Llamada inicial
+  cargarPublicaciones();
+</script>
 
   </div>
 
