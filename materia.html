@@ -41,9 +41,10 @@
 <body id="body">
   <!-- Navbar -->
   <div id="navbar-placeholder"></div>
+  <script src="./JS/navbarSession.js"></script>
 
   <!-- Contenido principal -->
-  <div id="conten">
+  <div id="conten" class="container mr-auto ml-auto">
     <div id="conten" class="container py-4">
       <h2>Materias</h2>
       <div id="materias-container"></div>
@@ -121,44 +122,37 @@
 
   <!-- Icono flotante -->
   <div id="icono-placeholder"></div>
-
+<br><br><br><br>
   <!-- Footer -->
   <div id="footer-placeholder"></div>
 
   
 
-  <script>
+<script>
   async function cargarPartes() {
-  const partes = [
-    { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
-    { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
-    { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
-  ];
+    const partes = [
+      { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
+      { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
+      { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
+    ];
 
-  for (const parte of partes) {
-    try {
-      const res = await fetch(parte.archivo);
-      const html = await res.text();
-      document.getElementById(parte.id).innerHTML = html;
-    } catch (error) {
-      console.error(`Error al cargar ${parte.archivo}:`, error);
+    for (const parte of partes) {
+      try {
+        const res = await fetch(parte.archivo);
+        const html = await res.text();
+        document.getElementById(parte.id).innerHTML = html;
+      } catch (error) {
+        console.error(`Error al cargar ${parte.archivo}:`, error);
+      }
     }
+
+    setTimeout(() => {
+      // Ejecuta funciones de sesión y estilo si existen
+      if (typeof updateNavbarAuthLinks === 'function') updateNavbarAuthLinks();
+      if (typeof VistaAnterior === 'function') VistaAnterior();
+      $('[data-toggle="tooltip"]').tooltip();
+    }, 300);
   }
-
-  // Esperar un momento para asegurarse que todo esté cargado
-  setTimeout(() => {
-    // Llama a la función de actualización del navbar aquí
-    if (typeof updateNavbarAuthLinks === 'function') {
-      updateNavbarAuthLinks();
-    }
-    // Llama a tu función de estilos si existe
-    if (typeof VistaAnterior === 'function') {
-       VistaAnterior();
-    }
-    $('[data-toggle="tooltip"]').tooltip();
-  }, 500); // Puedes ajustar este tiempo si es necesario
-}
-
   cargarPartes();
 </script>
 

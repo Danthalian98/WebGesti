@@ -40,11 +40,11 @@
 <body id="body">
   <div id="navbar-placeholder"></div>
 
-  <div id="conten">
+  <div id="conten" class="container mr-auto ml-auto">
     <section class="py-5" id="becas">
       <div class="container px-5 mb-5">
         <div class="text-center mb-5">
-          <h2 class="fw-bolder fs-5 mb-4">Becas:</h2>
+          <h2 class="fw-bolder fs-5 mt-5 mb-2">Becas</h2>
         <div class="row gx-5" id="contenedor-carreras"></div>
         </div>
         <div class="row gx-5 justify-content-center">
@@ -60,35 +60,25 @@
 
   <div id="footer-placeholder"></div>
 
-  <script>
-    // URL de tu API de becas en Clever Cloud
-    const API_URL_BECAS = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/becas.php'; // ¡Asegúrate de que esta URL sea correcta!
+    <script>
+    const API_URL_BECAS = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/becas.php';
 
-    // Función para cargar las becas desde la API
     async function cargarBecas() {
       const becasContainer = document.getElementById('becas-container');
-      becasContainer.innerHTML = '<p class="text-center">Cargando becas...</p>'; // Mostrar mensaje de carga
+      becasContainer.innerHTML = '<p class="text-center">Cargando becas...</p>';
 
       try {
         const response = await fetch(API_URL_BECAS);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const becas = await response.json();
 
-        if (becas.error) {
-          becasContainer.innerHTML = `<div class="alert alert-danger text-center">${becas.error}</div>`;
-          return;
-        }
-
-        becasContainer.innerHTML = ''; // Limpiar el mensaje de carga
+        becasContainer.innerHTML = '';
 
         if (becas.length === 0) {
           becasContainer.innerHTML = '<p class="text-center">No hay becas disponibles en este momento.</p>';
           return;
         }
 
-        // Iterar sobre cada beca y agregarla al contenedor
         becas.forEach(beca => {
           becasContainer.innerHTML += `
             <div class="card overflow-hidden shadow rounded-4 border-0 mb-5 contenido-texto">
@@ -101,14 +91,10 @@
                   </div>
                 </div>
               </div>
-            </div>
-          `;
+            </div>`;
         });
 
-        // Aplicar estilos después de cargar el contenido
-        if (typeof VistaAnterior === 'function') {
-            VistaAnterior();
-        }
+        if (typeof VistaAnterior === 'function') VistaAnterior();
 
       } catch (error) {
         console.error('Error al cargar las becas:', error);
@@ -116,42 +102,43 @@
       }
     }
 
-    // Función para cargar partes del HTML (navbar, footer, icono)
     async function cargarPartes() {
-  const partes = [
-    { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
-    { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
-    { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
-  ];
+      const partes = [
+        { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
+        { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
+        { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
+      ];
 
-  for (const parte of partes) {
-    try {
-      const res = await fetch(parte.archivo);
-      const html = await res.text();
-      document.getElementById(parte.id).innerHTML = html;
-    } catch (error) {
-      console.error(`Error al cargar ${parte.archivo}:`, error);
-    }
-  }
+      for (const parte of partes) {
+        try {
+          const res = await fetch(parte.archivo);
+          const html = await res.text();
+          document.getElementById(parte.id).innerHTML = html;
 
-  // Esperar un momento para asegurarse que todo esté cargado
-  setTimeout(() => {
-    // Llama a la función de actualización del navbar aquí
-    if (typeof updateNavbarAuthLinks === 'function') {
-      updateNavbarAuthLinks();
-    }
-    // Llama a tu función de estilos si existe
-    if (typeof VistaAnterior === 'function') {
-       VistaAnterior();
-    }
-    $('[data-toggle="tooltip"]').tooltip();
-  }, 500); // Puedes ajustar este tiempo si es necesario
-}
+          // Si se acaba de insertar la navbar, cargar el JS de sesión
+          if (parte.id === 'navbar-placeholder') {
+            const script = document.createElement('script');
+            script.src = './JS/navbarSession.js';
+            script.onload = () => {
+              if (typeof updateNavbarAuthLinks === 'function') updateNavbarAuthLinks();
+            };
+            document.body.appendChild(script);
+          }
 
-    // Inicialización al cargar la página
+        } catch (error) {
+          console.error(`Error al cargar ${parte.archivo}:`, error);
+        }
+      }
+
+      setTimeout(() => {
+        if (typeof VistaAnterior === 'function') VistaAnterior();
+        $('[data-toggle="tooltip"]').tooltip();
+      }, 300);
+    }
+
     window.onload = () => {
-      cargarPartes(); // Carga navbar, footer, etc.
-      cargarBecas();  // Carga las becas
+      cargarPartes();
+      cargarBecas();
     };
   </script>
 

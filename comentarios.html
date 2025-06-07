@@ -39,8 +39,9 @@
 
 <body id="body">
   <div id="navbar-placeholder"></div>
+  <script src="./JS/navbarSession.js"></script>
 
-  <div id="conten">
+  <div id="conten" class="container mr-auto ml-auto p-5">
     <div class="container p-2 my-3 border-0 text-center">
       <h2 class="mb-3">Caja de Comentarios</h2>
       <p class="ml-1 mb-0 contenido-texto">Participa en el enriquecimiento de ideas y oportunidades en conjunto con alumnos y exalumnos</p>
@@ -79,37 +80,30 @@
   <div id="footer-placeholder"></div>
 
   <script>
-    // Función para cargar partes del HTML (navbar, footer, icono)
     async function cargarPartes() {
-  const partes = [
-    { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
-    { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
-    { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
-  ];
+    const partes = [
+      { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
+      { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
+      { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
+    ];
 
-  for (const parte of partes) {
-    try {
-      const res = await fetch(parte.archivo);
-      const html = await res.text();
-      document.getElementById(parte.id).innerHTML = html;
-    } catch (error) {
-      console.error(`Error al cargar ${parte.archivo}:`, error);
+    for (const parte of partes) {
+      try {
+        const res = await fetch(parte.archivo);
+        const html = await res.text();
+        document.getElementById(parte.id).innerHTML = html;
+      } catch (error) {
+        console.error(`Error al cargar ${parte.archivo}:`, error);
+      }
     }
+
+    setTimeout(() => {
+      // Ejecuta funciones de sesión y estilo si existen
+      if (typeof updateNavbarAuthLinks === 'function') updateNavbarAuthLinks();
+      if (typeof VistaAnterior === 'function') VistaAnterior();
+      $('[data-toggle="tooltip"]').tooltip();
+    }, 300);
   }
-
-  // Esperar un momento para asegurarse que todo esté cargado
-  setTimeout(() => {
-    // Llama a la función de actualización del navbar aquí
-    if (typeof updateNavbarAuthLinks === 'function') {
-      updateNavbarAuthLinks();
-    }
-    // Llama a tu función de estilos si existe
-    if (typeof VistaAnterior === 'function') {
-       VistaAnterior();
-    }
-    $('[data-toggle="tooltip"]').tooltip();
-  }, 500); // Puedes ajustar este tiempo si es necesario
-}
 
     // --- Funciones para manejar comentarios ---
 

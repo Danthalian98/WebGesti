@@ -39,8 +39,9 @@
 
 <body id="body">
   <div id="navbar-placeholder"></div>
-  <div id="conten">
-    <div class="container p-2 my-3 border text-center">
+  <script src="./JS/navbarSession.js"></script>
+    <div id="conten" class="container mr-auto ml-auto mt-5 p-5">
+      <div class="container p-2 my-3 border text-center">
       <h2 class="mb-3">Nuestra Misión en Orientación Vocacional CETI Colomos</h2>
       <div class="p-1 my-3 border-0 d-flex align-items-center">
         <img src="IMG/Logo.png" class="rounded" width="200" height="200">
@@ -58,41 +59,33 @@
 
   <div id="footer-placeholder"></div>
 
-  <script>
-    async function cargarPartes() {
-  const partes = [
-    { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
-    { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
-    { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
-  ];
+<script>
+  async function cargarPartes() {
+    const partes = [
+      { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
+      { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
+      { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
+    ];
 
-  for (const parte of partes) {
-    try {
-      const res = await fetch(parte.archivo);
-      const html = await res.text();
-      document.getElementById(parte.id).innerHTML = html;
-    } catch (error) {
-      console.error(`Error al cargar ${parte.archivo}:`, error);
+    for (const parte of partes) {
+      try {
+        const res = await fetch(parte.archivo);
+        const html = await res.text();
+        document.getElementById(parte.id).innerHTML = html;
+      } catch (error) {
+        console.error(`Error al cargar ${parte.archivo}:`, error);
+      }
     }
+
+    setTimeout(() => {
+      // Ejecuta funciones de sesión y estilo si existen
+      if (typeof updateNavbarAuthLinks === 'function') updateNavbarAuthLinks();
+      if (typeof VistaAnterior === 'function') VistaAnterior();
+      $('[data-toggle="tooltip"]').tooltip();
+    }, 300);
   }
-
-  // Esperar un momento para asegurarse que todo esté cargado
-  setTimeout(() => {
-    // Llama a la función de actualización del navbar aquí
-    if (typeof updateNavbarAuthLinks === 'function') {
-      updateNavbarAuthLinks();
-    }
-    // Llama a tu función de estilos si existe
-    if (typeof VistaAnterior === 'function') {
-       VistaAnterior();
-    }
-    $('[data-toggle="tooltip"]').tooltip();
-  }, 500); // Puedes ajustar este tiempo si es necesario
-}
-
-    // Llama a la función para cargar las partes al cargar la página
-    window.onload = cargarPartes;
-  </script>
+  cargarPartes();
+</script>
 
 </body>
 </html>

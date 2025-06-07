@@ -44,60 +44,15 @@
   <script src="./JS/navbarSession.js"></script>
 
   <!-- Contenido principal -->
-  <div id="conten" class="container mr-auto ml-auto p-5">
-    
-    <!-- Aquí va el contenido que cambia -->
-    <div id="contenedor-publicaciones"></div>
-    <ul class="pagination justify-content-center" id="paginacion"></ul>
-
-    <script>
-      async function cargarPublicaciones(pagina = 1) {
-        try {
-          const res = await fetch(`https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/publicaciones.php?pagina=${pagina}`);
-          const data = await res.json();
-          console.log(data);
-
-
-          const contenedor = document.getElementById("contenedor-publicaciones");
-          contenedor.innerHTML = "";
-
-          data.publicaciones.forEach(pub => {
-            contenedor.innerHTML += `
-              <div class="container p-2 my-3 border text-center">
-                <h2 class="mb-3">${pub.titulo}</h2>
-                <div class="p-1 my-3 border-0 d-flex align-items-center">
-                  <img src="IMG/${pub.idImagen}" class="rounded" width="200" height="200">
-                  <p class="ml-1 mb-0 contenido-texto">${pub.contenido}</p>
-                </div>
-              </div>
-            `;
-          });
-
-          const paginacion = document.getElementById("paginacion");
-          paginacion.innerHTML = "";
-          for (let i = 1; i <= data.totalPaginas; i++) {
-            paginacion.innerHTML += `
-              <li class="page-item ${i === data.paginaActual ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="cargarPublicaciones(${i})">${i}</a>
-              </li>
-            `;
-          }
-           if (typeof VistaAnterior === 'function') {
-              VistaAnterior();
-          }
-        } catch (e) {
-          console.error("Error al cargar publicaciones:", e);
-        }
-      }
-
-      // Llamada inicial
-      cargarPublicaciones();
-    </script>
-
+  <br/>
+  <div class="p-5 mb-4 bg-light rounded-3 ml-5 mr-5">
+    <div class="container-fluid py-5 align-items-cente">
+      <h1 class="display-5 fw-bold">Bienvenido</h1>
+      <p class="col-md-8 fs-4">El sistema de administración de la página hará posible al administrador realizar algunas acciónes necesarias para cambiar elmentos del template principal</p>
+      <!-- <button class="btn btn-primary btn-lg" type="button">Example button</button> -->
+    </div>
   </div>
-
-  <!-- Icono flotante -->
-  <div id="icono-placeholder"></div>
+  <br>
 
   <!-- Footer -->
   <div id="footer-placeholder"></div>
@@ -106,7 +61,6 @@
   async function cargarPartes() {
     const partes = [
       { id: 'navbar-placeholder', archivo: './PARTS/navbar.html' },
-      { id: 'icono-placeholder', archivo: './PARTS/icono.html' },
       { id: 'footer-placeholder', archivo: './PARTS/footer.html' }
     ];
 
