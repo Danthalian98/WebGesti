@@ -30,5 +30,5 @@ function updateNavbarAuthLinks() {
 function cerrarSesion() {
   localStorage.removeItem('user_id');
   localStorage.removeItem('user_nick');
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 }
