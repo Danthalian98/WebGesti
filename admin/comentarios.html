@@ -4,20 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Comentarios</title>
+<link rel="stylesheet" href="./styles2.css" />
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
   />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  
 </head>
-<body>
+
+<body id="body">
+  <div id="navbar-placeholder"></div>
+
   <div class="container my-4">
     <h2 class="text-center mb-4">Lista de Comentarios</h2>
 
-    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#comentarioModal" onclick="abrirModal()">Nuevo Comentario</button>
-
-    <table class="table table-bordered text-center">
+    <table class="table table-striped table-bordered text-center" id="comentariosTable">
       <thead class="thead-dark">
         <tr>
           <th>Nombre</th>
@@ -27,31 +31,31 @@
       </thead>
       <tbody id="comentariosContainer"></tbody>
     </table>
-  </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="comentarioModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <form id="formComentario" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Agregar / Editar Comentario</h5>
-          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="comentarioId" />
-          <div class="form-group">
-            <input type="text" id="nombre" class="form-control" placeholder="Nombre" required />
-          </div>
-          <div class="form-group">
-            <textarea id="comentario" class="form-control" placeholder="Comentario" required></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Guardar</button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        </div>
-      </form>
-    </div>
+    
+    <h3 class="text-center mt-5 mb-3">Agregar / Editar Comentario</h3>
+
+    <form id="formComentario" class="mx-auto" style="max-width: 600px;">
+      <input type="hidden" id="comentarioId" />
+      <div class="form-group">
+        <input
+          type="text"
+          id="nombre"
+          class="form-control"
+          placeholder="Nombre"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <textarea
+          id="comentario"
+          class="form-control"
+          placeholder="Comentario"
+          required
+        ></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Guardar</button>
+    </form>
   </div>
 
   <script>
@@ -68,17 +72,12 @@
             <td>${c.nombre}</td>
             <td>${c.comentario}</td>
             <td>
-              <button class="btn btn-warning btn-sm" onclick="editarComentario(${c.id})">Editar</button>
-              <button class="btn btn-danger btn-sm" onclick="eliminarComentario(${c.id})">Eliminar</button>
+              <button class="btn btn-sm btn-warning mr-2" onclick="editarComentario(${c.id})">Editar</button>
+              <button class="btn btn-sm btn-danger" onclick="eliminarComentario(${c.id})">Eliminar</button>
             </td>
           </tr>
         `;
       });
-    }
-
-    function abrirModal() {
-      document.getElementById("formComentario").reset();
-      document.getElementById("comentarioId").value = "";
     }
 
     async function editarComentario(id) {
@@ -87,7 +86,7 @@
       document.getElementById("comentarioId").value = c.id;
       document.getElementById("nombre").value = c.nombre;
       document.getElementById("comentario").value = c.comentario;
-      $('#comentarioModal').modal('show');
+      // No abrimos un modal, simplemente cargamos los datos en el formulario de abajo
     }
 
     async function eliminarComentario(id) {
@@ -118,11 +117,40 @@
         });
       }
 
-      $('#comentarioModal').modal('hide');
+      this.reset(); // Limpia el formulario
+      document.getElementById("comentarioId").value = ""; // Limpia el ID oculto
       cargarComentarios();
     });
 
     cargarComentarios();
+  </script>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    async function cargarPartes() {
+      const partes = [
+        { id: "navbar-placeholder", archivo: "./PARTS/navbar.html" }, // Asegúrate de que esta ruta sea correcta
+        { id: "footer-placeholder", archivo: "./PARTS/footer.html" }, // Asegúrate de que esta ruta sea correcta
+      ];
+
+      for (const parte of partes) {
+        try {
+          const res = await fetch(parte.archivo);
+          const html = await res.text();
+          document.getElementById(parte.id).innerHTML = html;
+        } catch (error) {
+          console.error(`Error al cargar ${parte.archivo}:`, error);
+        }
+      }
+
+      setTimeout(() => {
+         if (typeof updateNavbarAuthLinks === "function") updateNavbarAuthLinks();
+        // if (typeof VistaAnterior === "function") VistaAnterior();
+        $("[data-toggle='tooltip']").tooltip();
+      }, 300);
+    }
+    cargarPartes();
   </script>
 </body>
 </html>
