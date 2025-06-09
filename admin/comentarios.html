@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Comentarios</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+  />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <div class="container my-4">
+    <h2 class="text-center mb-4">Lista de Comentarios</h2>
+
+    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#comentarioModal" onclick="abrirModal()">Nuevo Comentario</button>
+
+    <table class="table table-bordered text-center">
+      <thead class="thead-dark">
+        <tr>
+          <th>Nombre</th>
+          <th>Comentario</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="comentariosContainer"></tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="comentarioModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <form id="formComentario" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar / Editar Comentario</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="comentarioId" />
+          <div class="form-group">
+            <input type="text" id="nombre" class="form-control" placeholder="Nombre" required />
+          </div>
+          <div class="form-group">
+            <textarea id="comentario" class="form-control" placeholder="Comentario" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/admin/cComentarios.php'; // cambia esto por tu URL
+
+    async function cargarComentarios() {
+      const res = await fetch(API_URL);
+      const comentarios = await res.json();
+      const container = document.getElementById("comentariosContainer");
+      container.innerHTML = "";
+      comentarios.forEach((c) => {
+        container.innerHTML += `
+          <tr>
+            <td>${c.nombre}</td>
+            <td>${c.comentario}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" onclick="editarComentario(${c.id})">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="eliminarComentario(${c.id})">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function abrirModal() {
+      document.getElementById("formComentario").reset();
+      document.getElementById("comentarioId").value = "";
+    }
+
+    async function editarComentario(id) {
+      const res = await fetch(`${API_URL}?id=${id}`);
+      const c = await res.json();
+      document.getElementById("comentarioId").value = c.id;
+      document.getElementById("nombre").value = c.nombre;
+      document.getElementById("comentario").value = c.comentario;
+      $('#comentarioModal').modal('show');
+    }
+
+    async function eliminarComentario(id) {
+      if (!confirm("¿Seguro que deseas eliminar este comentario?")) return;
+      await fetch(`${API_URL}?id=${id}`, { method: "DELETE" });
+      cargarComentarios();
+    }
+
+    document.getElementById("formComentario").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const id = document.getElementById("comentarioId").value;
+      const data = {
+        nombre: document.getElementById("nombre").value,
+        comentario: document.getElementById("comentario").value,
+      };
+
+      if (id) {
+        await fetch(`${API_URL}?id=${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+      } else {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+      }
+
+      $('#comentarioModal').modal('hide');
+      cargarComentarios();
+    });
+
+    cargarComentarios();
+  </script>
+</body>
+</html>
