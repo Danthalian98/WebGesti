@@ -6,10 +6,7 @@
   <title>Gestión de Tablero</title>
 
   <!-- Bootstrap y jQuery -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-  />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -29,7 +26,6 @@
   <!-- Navbar -->
   <div id="navbar-placeholder"></div>
 
-  <!-- Contenedor principal de la página que crecerá para empujar el footer -->
   <div id="main-content">
     <div class="container my-4">
       <h2 class="text-center mb-4">Gestión de Publicaciones del Tablero</h2>
@@ -46,8 +42,6 @@
         <tbody id="publicacionesContainer"></tbody>
       </table>
 
-    
-
       <h3 class="text-center mt-5 mb-3">Agregar / Editar Publicación</h3>
 
       <form id="formPublicacion" class="mx-auto" style="max-width: 800px;">
@@ -58,48 +52,32 @@
           <select id="imageSelect" class="form-control" required>
             <option value="">-- Seleccione una imagen --</option>
           </select>
-          <!-- La ruta de la imagen en la vista previa debe ser relativa desde tu HTML -->
           <img id="imagePreview" src="" alt="Vista previa de la imagen" class="img-thumbnail mt-2" style="max-width: 150px; max-height: 150px; display: none;">
         </div>
 
         <div class="form-group">
-          <input
-            type="text"
-            id="publicacionTitulo"
-            class="form-control"
-            placeholder="Título de la publicación"
-            required
-          />
+          <input type="text" id="publicacionTitulo" class="form-control" placeholder="Título de la publicación" required />
         </div>
         <div class="form-group">
-          <textarea
-            id="publicacionContenido"
-            class="form-control"
-            placeholder="Contenido de la publicación"
-            rows="5"
-            required
-          ></textarea>
+          <textarea id="publicacionContenido" class="form-control" placeholder="Contenido de la publicación" rows="5" required></textarea>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Guardar Publicación</button>
       </form>
     </div>
-  </div> <!-- Fin de #main-content -->
+  </div>
 
   <script>
-    // URL de la API (ajusta según tu endpoint real)
-    const API_TABLERO_URL = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/admin/tablero.php'; // Cambia esto por tu URL real
-    // Nueva URL para listar imágenes (ajusta según tu endpoint real)
-    const API_LIST_IMAGES_URL = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/admin/list_images.php'; // Cambia esto por tu URL real
-
-    // --- Funciones para tbl_tablero ---
+    const API_TABLERO_URL = 'https://app-65cff2f0-2af8-4c0a-bd3f-8b2292da79ba.cleverapps.io/api/admin/tablero.php';
+    const IMAGES_JSON_URL = 'https://danthalian98.github.io/WebGesti/admin/IMG/tablero/images.json';
 
     async function cargarPublicaciones() {
       const res = await fetch(API_TABLERO_URL);
       const publicaciones = await res.json();
       const container = document.getElementById("publicacionesContainer");
-      container.innerHTML = ""; // Limpiar antes de añadir
+      container.innerHTML = "";
+
       if (publicaciones.length === 0) {
-        container.innerHTML = `<tr><td colspan="4">No hay publicaciones en el tablero.</td></tr>`; // colspan ajustado a 4
+        container.innerHTML = `<tr><td colspan="4">No hay publicaciones en el tablero.</td></tr>`;
       } else {
         publicaciones.forEach((pub) => {
           container.innerHTML += `
@@ -117,62 +95,51 @@
       }
     }
 
-    // Nueva función para cargar las imágenes en el combobox
     async function loadImageSelect() {
-        const selectElement = document.getElementById("imageSelect");
-        selectElement.innerHTML = '<option value="">-- Seleccione una imagen --</option>'; // Restablecer opciones
-        const previewElement = document.getElementById("imagePreview");
-        previewElement.style.display = 'none'; // Ocultar vista previa al inicio
+      const selectElement = document.getElementById("imageSelect");
+      selectElement.innerHTML = '<option value="">-- Seleccione una imagen --</option>';
+      const previewElement = document.getElementById("imagePreview");
+      previewElement.style.display = 'none';
 
-        try {
-            const res = await fetch(API_LIST_IMAGES_URL);
-            const imageNames = await res.json();
-            
-            if (imageNames && imageNames.length > 0) {
-                imageNames.forEach(imageName => {
-                    const option = document.createElement("option");
-                    option.value = imageName;
-                    option.textContent = imageName;
-                    selectElement.appendChild(option);
-                });
-            } else {
-                console.warn("No se encontraron imágenes en el servidor o la lista está vacía.");
-            }
-        } catch (error) {
-            console.error("Error al cargar las imágenes para el combobox:", error);
-            // Mostrar un mensaje al usuario si la carga falla
-            const option = document.createElement("option");
-            option.value = "";
-            option.textContent = "Error al cargar imágenes";
-            selectElement.appendChild(option);
-        }
+      try {
+        const res = await fetch(IMAGES_JSON_URL);
+        const imageNames = await res.json();
+
+        imageNames.forEach(imageName => {
+          const option = document.createElement("option");
+          option.value = imageName;
+          option.textContent = imageName;
+          selectElement.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Error al cargar las imágenes:", error);
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Error al cargar imágenes";
+        selectElement.appendChild(option);
+      }
     }
 
-    // Función para actualizar la vista previa de la imagen
     function updateImagePreview() {
-        const selectElement = document.getElementById("imageSelect");
-        const previewElement = document.getElementById("imagePreview");
-        const selectedImage = selectElement.value;
+      const selectElement = document.getElementById("imageSelect");
+      const previewElement = document.getElementById("imagePreview");
+      const selectedImage = selectElement.value;
 
-        if (selectedImage) {
-            // Esta ruta debe ser relativa desde tu archivo HTML hasta la imagen
-            previewElement.src = `https://danthalian98.github.io/WebGesti/admin/IMG/tablero/${selectedImage}`;
-            previewElement.style.display = 'block'; // Mostrar la vista previa
-        } else {
-            previewElement.src = "";
-            previewElement.style.display = 'none'; // Ocultar si no hay selección
-        }
+      if (selectedImage) {
+        previewElement.src = `https://danthalian98.github.io/WebGesti/admin/IMG/tablero/${selectedImage}`;
+        previewElement.style.display = 'block';
+      } else {
+        previewElement.src = "";
+        previewElement.style.display = 'none';
+      }
     }
 
     async function editarPublicacion(id) {
       const res = await fetch(`${API_TABLERO_URL}?id=${id}`);
       const pub = await res.json();
       document.getElementById("publicacionId").value = pub.id;
-      
-      // Seleccionar la imagen correcta en el combobox
       document.getElementById("imageSelect").value = pub.idImagen;
-      updateImagePreview(); // Actualizar la vista previa con la imagen seleccionada
-
+      updateImagePreview();
       document.getElementById("publicacionTitulo").value = pub.titulo;
       document.getElementById("publicacionContenido").value = pub.contenido;
     }
@@ -180,28 +147,25 @@
     async function eliminarPublicacion(id) {
       if (!confirm("¿Seguro que deseas eliminar esta publicación?")) return;
       await fetch(`${API_TABLERO_URL}?id=${id}`, { method: "DELETE" });
-      cargarPublicaciones(); // Recargar la lista después de eliminar
+      cargarPublicaciones();
     }
 
     document.getElementById("formPublicacion").addEventListener("submit", async function (e) {
-      e.preventDefault(); // Prevenir el envío de formulario por defecto
+      e.preventDefault();
       const id = document.getElementById("publicacionId").value;
       const data = {
-        // Obtener el valor del combobox de selección de imagen
-        idImagen: document.getElementById("imageSelect").value, 
+        idImagen: document.getElementById("imageSelect").value,
         titulo: document.getElementById("publicacionTitulo").value,
         contenido: document.getElementById("publicacionContenido").value,
       };
 
       if (id) {
-        // Editar publicación existente
         await fetch(`${API_TABLERO_URL}?id=${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
       } else {
-        // Crear nueva publicación
         await fetch(API_TABLERO_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -209,28 +173,24 @@
         });
       }
 
-      this.reset(); // Limpiar el formulario
-      document.getElementById("publicacionId").value = ""; // Limpiar el ID oculto
-      document.getElementById("imageSelect").value = ""; // Limpiar selección de imagen
-      updateImagePreview(); // Ocultar la vista previa
-
-      cargarPublicaciones(); // Recargar la lista de publicaciones
+      this.reset();
+      document.getElementById("publicacionId").value = "";
+      document.getElementById("imageSelect").value = "";
+      updateImagePreview();
+      cargarPublicaciones();
     });
 
-    // --- Carga inicial de la página y partes externas ---
-
-    // Añadir el listener para el cambio de selección de imagen
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById("imageSelect").addEventListener("change", updateImagePreview);
+      document.getElementById("imageSelect").addEventListener("change", updateImagePreview);
     });
 
-    cargarPublicaciones(); // Cargar las publicaciones al inicio
-    loadImageSelect(); // Cargar las imágenes en el combobox al inicio
+    cargarPublicaciones();
+    loadImageSelect();
 
     async function cargarPartes() {
       const partes = [
-        { id: "navbar-placeholder", archivo: "./PARTS/navbar.html" }, // Asegúrate de que esta ruta sea correcta
-        { id: "footer-placeholder", archivo: "./PARTS/footer.html" }, // Asegúrate de que esta ruta sea correcta
+        { id: "navbar-placeholder", archivo: "./PARTS/navbar.html" },
+        { id: "footer-placeholder", archivo: "./PARTS/footer.html" },
       ];
 
       for (const parte of partes) {
@@ -244,11 +204,11 @@
       }
 
       setTimeout(() => {
-         if (typeof updateNavbarAuthLinks === "function") updateNavbarAuthLinks();
-        // if (typeof VistaAnterior === "function") VistaAnterior();
+        if (typeof updateNavbarAuthLinks === "function") updateNavbarAuthLinks();
         $("[data-toggle='tooltip']").tooltip();
       }, 300);
     }
+
     cargarPartes();
   </script>
 
